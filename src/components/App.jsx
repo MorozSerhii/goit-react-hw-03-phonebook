@@ -4,6 +4,8 @@ import { ContactText, Container, TitileContact } from './App.styled';
 import { ContactForm } from './ContactForm/ContactForm';
 import { ContactList } from './ContactsList/ContactList';
 import { Filter } from './Filter/Filter';
+
+const LS_KEY = 'contacts';
 export class App extends Component {
   state = {
     contacts: [
@@ -15,9 +17,20 @@ export class App extends Component {
     filter: '',
   };
 
+  componentDidMount() {
+    const savedContacts = JSON.parse(localStorage.getItem(LS_KEY));
+    if (savedContacts) {
+      this.setState({ contacts: savedContacts });
+    }
+  }
+  componentDidUpdate(_, prevState) {
+    if (prevState.contacts.length !== this.state.contacts.length) {
+      localStorage.setItem(LS_KEY, JSON.stringify(this.state.contacts));
+    }
+  }
   addContact = e => {
     this.setState(prevState => ({
-      contacts: [...prevState.contacts, { id: nanoid(), ...e }],
+      contacts: [{ id: nanoid(), ...e }, ...prevState.contacts],
     }));
   };
   removeContact = id => {
@@ -28,13 +41,15 @@ export class App extends Component {
     });
   };
   Filter = e => {
-    const { name, value } = e.target;
-    this.setState({ [name]: value.toLowerCase() });
+    const { value } = e.target;
+    this.setState({ filter: value.toLowerCase() });
   };
 
   render() {
-    const filterContacts = this.state.contacts.filter(contact =>
-      contact.name.toLowerCase().includes(this.state.filter)
+    const contacts = this.state.contacts;
+    const filter = this.state.filter;
+    const filterContacts = contacts.filter(contact =>
+      contact.name.toLowerCase().includes(filter)
     );
     return (
       <Container
@@ -43,12 +58,9 @@ export class App extends Component {
         transition={{ duration: 0.5 }}
       >
         <h1>Phonebook</h1>
-        <ContactForm
-          contacts={this.state.contacts}
-          addContact={this.addContact}
-        />
+        <ContactForm contacts={contacts} addContact={this.addContact} />
         <TitileContact>Contacts</TitileContact>
-        <Filter filter={this.state.filter} change={this.Filter} />
+        <Filter filter={filter} change={this.Filter} />
         {filterContacts.length > 0 ? (
           <ContactList
             contacts={filterContacts}
