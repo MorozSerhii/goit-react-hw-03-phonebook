@@ -26,12 +26,13 @@ export class ContactForm extends Component {
     this.setState({ name: '', number: '' });
   };
   render() {
+    const { name, number } = this.state;
     return (
       <Form onSubmit={this.onSubmit}>
         <Label htmlFor="InputName">Name</Label>
         <InputName
           onChange={this.handleChange}
-          value={this.state.name}
+          value={name}
           type="text"
           name="name"
           id="InputName"
@@ -42,7 +43,7 @@ export class ContactForm extends Component {
         <Label htmlFor="InputNumber">Number</Label>
         <InputName
           onChange={this.handleChange}
-          value={this.state.number}
+          value={number}
           id="InputNumber"
           type="tel"
           name="number"
